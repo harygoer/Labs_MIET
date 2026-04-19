@@ -5,6 +5,8 @@
 void proga_1();
 void proga_2();
 
+int modmax(int x[], int start, int n);
+
 int main() {
     int k = 0;
     printf("Vvedite nomer zadaniya:\n");
@@ -20,82 +22,115 @@ int main() {
 
     return 0;
 }
+int poloz(int x[], int n){
+    int i, p = -1;
+
+    for (i = 0; i < n; i++) {
+        if (x[i] > 0) {
+            p = i;
+        }
+    }
+    if (p>0){return p;}
+
+    else if (p==-1){
+        printf("polozitelnix net\n");
+        return -1;
+    }
+    else{
+        printf("pustaya levaya chast\n");
+        return 0;
+    }
+}       
+
+
 void proga_1() {
-    int n = 7;
-    int x[n];
-    int i, max, imax, s1 = 0, s2 = 0;
-
-    printf("Vvedite elementi massiva:\n");
-    for (i = 0; i < n; i++) {
-        scanf("%d", &x[i]);
-    }
-
-    max = x[0];
-    imax = 0;
-
-    for (i = 1; i < n; i++) {
-        if (x[i] > max) {
-            max = x[i];
-            imax = i;
-        }
-    }
-
-    for (i = 0; i < n; i++) {
-        if (x[i] < 0 && i<imax ) {
-            s2 = s2 + x[i];
-        }
-        else if ( i>imax && x[i]>0){
-            s1+=x[i];
-            
-        }
-    }
-
-    printf("S1 = %d\n", s1);
-    printf("S2 = %d\n", s2);
-
-    
-}
-
-void proga_2() {
-    int a[10][12];
-    int b[6] = {0};
-    int i, j, count = 0;
+    int mini_a = 100000;
+    int index_a = -1;
+    int index_b = -1;
+    int mini_b = 100000;
+    int n = 12;
+    int a[n], b[n], i, count = 0;
 
     srand(time(NULL));
 
-    for (i = 0; i < 10; i++) {
-        for (j = 0; j < 12; j++) {
-            a[i][j] = rand() % 51 - 10;
+    for (i = 0; i < n; i++) {
+        a[i] = rand() % 51 - 3;
+        b[i] = rand() % 31 - 20;
+    }
+
+    printf("Massiv A:\n");
+    for (i = 0; i < n; i++) {
+        printf("%4d", a[i]);
+    }
+    printf("\n");
+
+    printf("Massiv B:\n");
+    for (i = 0; i < n; i++) {
+        printf("%4d", b[i]);
+    }
+    printf("\n");
+
+    int a_n = poloz(a, n);
+    int b_n = poloz(b, n);
+
+    for (i = 0; i < a_n; i++) {
+        if (a[i] < mini_a) {
+            mini_a = a[i];
+            index_a = i;
+        }
+    }
+
+    for (i = 0; i < b_n; i++) {
+        if (b[i] < mini_b) {
+            mini_b = b[i];
+            index_b = i;
+        }
+    }
+    
+    printf("Index A = %d\n", a_n);
+    printf("Index B = %d\n", b_n);
+    printf("Min A = %d\n", mini_a);
+    printf("Index min A = %d\n", index_a);
+    printf("Min B = %d\n", mini_b);
+    printf("Index min B = %d\n", index_b);
+}
+
+
+void proga_2() {
+    int n = 5;
+    int a[5][5];
+    int i, j;
+
+    srand(time(NULL));
+
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            a[i][j] = rand() % 21 - 10;
         }
     }
 
     printf("Matrica:\n");
-    for (i = 0; i < 10; i++) {
-        for (j = 0; j < 12; j++) {
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
             printf("%4d", a[i][j]);
         }
         printf("\n");
     }
 
-    for (i = 0; i < 10; i++) {
-        for (j = 0; j < 12; j++) {
-            if (i >= 5 && a[i][j] > 0) {
-                count++;
-            }
+    printf("\nMax po modulyu v kazhdoi stroke pravogo verhnego treugolnika:\n");
+    for (i = 0; i < n; i++) {
+        printf("stroka %d: %d\n", i, modmax(a[i], i, n));
+    }
+}
 
-            if (j % 2 == 0 && a[i][j] < 0) {
-                b[j / 2]++;
-            }
+int modmax(int x[], int start, int n) {
+    int j, m = x[start];
+
+    for (j = start + 1; j < n; j++) {
+        if (abs(x[j]) > abs(m)) {
+            m = x[j];
         }
     }
 
-    printf("\nKolichestvo polozhitelnih elementov v nizhnei polovine = %d\n", count);
-
-    printf("Massiv b:\n");
-    for (j = 0; j < 6; j++) {
-        printf("%d ", b[j]);
-    }
-    printf("\n");
+    return m;
 }
-
-        
