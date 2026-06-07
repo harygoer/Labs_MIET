@@ -1,136 +1,119 @@
-#include <stdio.h>
+/*тут по факту лишь имитация ООП, если прям хотелось ООП, то нужно на плюсах писать, там есть классы, наследование и виртуал методы*/
+
+#include <stdio.h>   /*printf*/
 #include <stdlib.h>
-#include <time.h>
+#include <string.h>  /*strcpy*/
 
-void proga_1();
-void proga_2();
 
-int modmax(int x[], int start, int n);
+/*наборы готовых значений*/
+enum Status { TODO, IN_PROGRESS, DONE }; /*удобнее вместо 0 1 и 2 юзать*/
+enum Priority { LOW, MEDIUM, HIGH };
 
-int main() {
-    int k = 0;
-    printf("Vvedite nomer zadaniya:\n");
-    scanf("%d", &k);
 
-    if (k == 1) {
-        proga_1();
+/*обычная задача*/
+struct Task {
+    char title[100];          /*название задачи*/
+    enum Priority priority;   /*приоритет*/
+    enum Status status;       /*статус*/
+    int hasDeadline;          /*есть дедлайн или нет*/
+    char deadline[20];        /*дата дедлайна если есть*/
+};
+
+
+/*печать одной задачи*/
+void printTask(struct Task t) {
+    if (t.hasDeadline == 1) { /*если у задачи есть дедлайн*/
+        printf("Task: %s, priority = %d, status = %d, deadline = %s",
+               t.title, t.priority, t.status, t.deadline);
+
+        if (t.status != DONE && strcmp(t.deadline, "08-06-2026") < 0) {/*сравниваем строки*/
+            printf(" OVERDUE");
+        }
+
+        printf("\n");
+    } else { /*если дедлайна нет*/
+        printf("Task: %s, priority = %d, status = %d\n",
+               t.title, t.priority, t.status);
     }
+}
 
-    else if (k == 2) {
-        proga_2();
-    }
 
+/*проверка просрочки*/
+int isOverdue(struct Task t) {
+    if (t.hasDeadline == 0) return 0; /*если дедлайна нет то не просрочена*/
+    if (t.status == DONE) return 0;   /*если выполнена то тоже не считаем просроченной*/
+    if (strcmp(t.deadline, "08-06-2026") < 0) return 1; /*если дата меньше этой то просрочена, сравнение идёт 0 если одинаковые, меньше 0 первая меншье второй, больше -> наоборот*/
     return 0;
 }
-int poloz(int x[], int n){
-    int i, p = -1;
 
-    for (i = 0; i < n; i++) {
-        if (x[i] > 0) {
-            p = i;
-        }
+
+int main() {
+    struct Task tasks[5]; /*массив задач*/
+
+
+    /*обычные задачи*/
+    strcpy(tasks[0].title, "Read"); /*копируем название в строку*/
+    tasks[0].priority = LOW;
+    tasks[0].status = TODO;
+    tasks[0].hasDeadline = 0; /*дедлайна нет*/
+
+    strcpy(tasks[1].title, "Code");
+    tasks[1].priority = HIGH;
+    tasks[1].status = IN_PROGRESS;
+    tasks[1].hasDeadline = 0; /*дедлайна нет*/
+
+
+    /*задачи с дедлайном*/
+    strcpy(tasks[2].title, "Math");
+    tasks[2].priority = HIGH;
+    tasks[2].status = TODO;
+    tasks[2].hasDeadline = 1; /*дедлайн есть*/
+    strcpy(tasks[2].deadline, "05-06-2026");
+
+    strcpy(tasks[3].title, "Essay");
+    tasks[3].priority = MEDIUM;
+    tasks[3].status = TODO;
+    tasks[3].hasDeadline = 1; /*дедлайн есть*/
+    strcpy(tasks[3].deadline, "12-06-2026");
+
+    strcpy(tasks[4].title, "Lab");
+    tasks[4].priority = HIGH;
+    tasks[4].status = DONE;
+    tasks[4].hasDeadline = 1; /*дедлайн есть*/
+    strcpy(tasks[4].deadline, "01-06-2026");
+
+
+    printf("All tasks:\n");
+    for (int i = 0; i < 5; i++) { /*идём по всем задачам*/
+        printTask(tasks[i]); /*печатаем задачу*/
     }
-    if (p>0){return p;}
-
-    else if (p==-1){
-        printf("polozitelnix net\n");
-        return -1;
-    }
-    else{
-        printf("pustaya levaya chast\n");
-        return 0;
-    }
-}       
 
 
-void proga_1() {
-    int mini_a = 100000;
-    int index_a = -1;
-    int index_b = -1;
-    int mini_b = 100000;
-    int n = 12;
-    int a[n], b[n], i, count = 0;
-
-    srand(time(NULL));
-
-    for (i = 0; i < n; i++) {
-        a[i] = rand() % 51 - 3;
-        b[i] = rand() % 31 - 20;
-    }
-
-    printf("Massiv A:\n");
-    for (i = 0; i < n; i++) {
-        printf("%4d", a[i]);
-    }
-    printf("\n");
-
-    printf("Massiv B:\n");
-    for (i = 0; i < n; i++) {
-        printf("%4d", b[i]);
-    }
-    printf("\n");
-
-    int a_n = poloz(a, n);
-    int b_n = poloz(b, n);
-
-    for (i = 0; i < a_n; i++) {
-        if (a[i] < mini_a) {
-            mini_a = a[i];
-            index_a = i;
+    printf("\nDone tasks:\n");
+    for (int i = 0; i < 5; i++) {
+        if (tasks[i].status == DONE) { /*если задача выполнена*/
+            printTask(tasks[i]);
         }
     }
 
-    for (i = 0; i < b_n; i++) {
-        if (b[i] < mini_b) {
-            mini_b = b[i];
-            index_b = i;
+
+    printf("\nHighest priority task:\n");
+    int imax = 0; /*индекс задачи с самым высоким приоритетом*/
+    for (int i = 1; i < 5; i++) {
+        if (tasks[i].priority > tasks[imax].priority) { /*если нашли приоритет выше*/
+            imax = i; /*запоминаем индекс*/
         }
     }
-    
-    printf("Index A = %d\n", a_n);
-    printf("Index B = %d\n", b_n);
-    printf("Min A = %d\n", mini_a);
-    printf("Index min A = %d\n", index_a);
-    printf("Min B = %d\n", mini_b);
-    printf("Index min B = %d\n", index_b);
-}
+    printTask(tasks[imax]);
 
 
-void proga_2() {
-    int n = 5;
-    int a[5][5];
-    int i, j;
-
-    srand(time(NULL));
-
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            a[i][j] = rand() % 21 - 10;
+    printf("\nOverdue tasks:\n");
+    for (int i = 0; i < 5; i++) {
+        if (isOverdue(tasks[i])) { /*если задача просрочена*/
+            printTask(tasks[i]);
         }
     }
 
-    printf("Matrica:\n");
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            printf("%4d", a[i][j]);
-        }
-        printf("\n");
-    }
 
-    printf("\nMax po modulyu v kazhdoi stroke pravogo verhnego treugolnika:\n");
-    for (i = 0; i < n; i++) {
-        printf("stroka %d: %d\n", i, modmax(a[i], i, n));
-    }
-}
-
-int modmax(int x[], int start, int n) {
-    int j, m = x[start];
-
-    for (j = start + 1; j < n; j++) {
-        if (abs(x[j]) > abs(m)) {
-            m = x[j];
-        }
-    }
-
-    return m;
+    return 0;
 }
